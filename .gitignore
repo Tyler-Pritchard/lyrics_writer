@@ -27,6 +27,7 @@ logs/
 data/raw/
 data/processed/
 data/cached/
+data_sets/*
 
 # Models and results
 models/results/
@@ -36,9 +37,6 @@ models/results/
 # Cache
 cache/
 cached_lm*
-
-# Ignore data files if needed
-*.txt
 
 # MacOS specific files
 .DS_Store
