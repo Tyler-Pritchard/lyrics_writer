@@ -1,0 +1,80 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# Environment variables
+.env
+
+# Virtual environments
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# VS Code settings
+.vscode/
+
+# Logs
+logs/
+*.log
+
+# Data files
+data/raw/
+data/processed/
+data/cached/
+
+# Models and results
+models/results/
+*.safetensors
+*.bin
+
+# Cache
+cache/
+cached_lm*
+
+# Ignore data files if needed
+*.txt
+
+# MacOS specific files
+.DS_Store
+
+# Python specific settings
+*.pyo
+*.pyd
+*.so
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+*.cover
+*.py,cover
+.hypothesis/
+
+# Environments
+*.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Jupyter Notebook check-points
+.ipynb_checkpoints
+
+# PyCharm specific settings
+.idea/
+
+# Ignore config files for secrets
+config.json
+
+# Ignore generated files and directories
+/generated/
+!scripts/generated/
