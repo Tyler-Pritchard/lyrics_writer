@@ -1,25 +1,28 @@
 import os
 import re
 
-def clean_text(text):
-    text = re.sub(r'\s+', ' ', text)
-    text = re.sub(r'\. \.', '.', text)
-    text = re.sub(r'\s+([.,!?])', r'\1', text)
-    text = re.sub(r'[\r\n]', ' ', text)
-    text = text.strip()
-    return text
+def clean_lyrics(lyrics):
+    # Remove unwanted characters and multiple consecutive whitespaces
+    lyrics = re.sub(r'[,.;:\-\']', '', lyrics)  # Remove punctuation
+    lyrics = re.sub(r'\s+', ' ', lyrics).strip()  # Replace multiple whitespaces with a single space
+    lyrics = re.sub(r'\[.*?\]', '', lyrics)  # Remove content within brackets
+    lyrics = re.sub(r'\(.*?\)', '', lyrics)  # Remove content within parentheses
+    return lyrics
 
-def preprocess_and_combine(input_folder, output_file):
-    with open(output_file, 'w', encoding='utf-8') as outfile:
-        for filename in os.listdir(input_folder):
-            if filename.endswith('.txt'):
-                with open(os.path.join(input_folder, filename), 'r', encoding='utf-8') as infile:
-                    text = infile.read()
-                    cleaned_text = clean_text(text)
-                    outfile.write(cleaned_text + "\n")
+def main():
+    input_file_path = os.path.abspath('data/raw/lyrics.txt')
+    output_file_path = os.path.abspath('data/processed/cleaned_lyrics.txt')
+
+    if not os.path.exists(input_file_path):
+        print(f"Input file {input_file_path} does not exist.")
+        return
+
+    with open(input_file_path, 'r', encoding='utf-8') as infile, \
+         open(output_file_path, 'w', encoding='utf-8') as outfile:
+        for line in infile:
+            cleaned_lyrics = clean_lyrics(line)
+            if cleaned_lyrics:  # Write only non-empty lines
+                outfile.write(cleaned_lyrics + '\n')
 
 if __name__ == "__main__":
-    input_folder = 'data/raw/'  # Path to your raw text files
-    output_file = 'data/processed/combined_data.txt'
-    preprocess_and_combine(input_folder, output_file)
-    print("Data preprocessing and combining complete.")
+    main()

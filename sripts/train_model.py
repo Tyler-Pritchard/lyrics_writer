@@ -1,51 +1,56 @@
+import os
+import torch
 from transformers import GPT2LMHeadModel, GPT2Tokenizer, DataCollatorForLanguageModeling, Trainer, TrainingArguments
 from datasets import load_dataset
-import torch
 
-# Load tokenizer and model
-tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
-model = GPT2LMHeadModel.from_pretrained('gpt2')
+def main():
+    # Load dataset
+    dataset = load_dataset('text', data_files={'train': 'data/processed/cleaned_lyrics.txt'})
 
-# Add a padding token to the tokenizer
-tokenizer.add_special_tokens({'pad_token': '[PAD]'})
-model.resize_token_embeddings(len(tokenizer))
+    # Load pre-trained model and tokenizer
+    model_name = 'gpt2'
+    model = GPT2LMHeadModel.from_pretrained(model_name)
+    tokenizer = GPT2Tokenizer.from_pretrained(model_name)
 
-# Load and preprocess dataset
-dataset = load_dataset('text', data_files={'train': './data/processed/combined_data.txt'})
-dataset = dataset.map(lambda examples: tokenizer(examples['text'], truncation=True, padding='max_length', max_length=128), batched=True)
-dataset.set_format(type='torch', columns=['input_ids', 'attention_mask'])
+    # Set the padding token to be the eos token
+    tokenizer.pad_token = tokenizer.eos_token
 
-# Create data collator
-data_collator = DataCollatorForLanguageModeling(
-    tokenizer=tokenizer,
-    mlm=False,
-)
+    device = torch.device("cpu")
+    model.to(device)
 
-# Define training arguments
-training_args = TrainingArguments(
-    output_dir='./models/results',
-    overwrite_output_dir=True,
-    num_train_epochs=5,  # Increase number of epochs if needed
-    per_device_train_batch_size=4,
-    save_steps=500,
-    save_total_limit=2,
-    logging_dir='./logs',
-    logging_steps=100,
-)
+    # Preprocess data
+    def tokenize_function(examples):
+        return tokenizer(examples["text"], padding="max_length", truncation=True)
 
-# Create trainer
-trainer = Trainer(
-    model=model,
-    args=training_args,
-    data_collator=data_collator,
-    train_dataset=dataset['train'],
-)
+    tokenized_datasets = dataset.map(tokenize_function, batched=True, num_proc=1, remove_columns=["text"])
 
-# Train the model
-trainer.train()
+    data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
 
-# Save the model
-model.save_pretrained('./models/results')
-tokenizer.save_pretrained('./models/results')
+    # Training arguments
+    training_args = TrainingArguments(
+        output_dir="./models/results",
+        overwrite_output_dir=True,
+        num_train_epochs=5,
+        per_device_train_batch_size=2,  # Adjust batch size as needed
+        save_steps=500,
+        save_total_limit=2,
+        logging_dir="./logs",
+        logging_steps=10,
+        evaluation_strategy="no",
+        gradient_accumulation_steps=4,  # Accumulate gradients over multiple steps
+        fp16=False,
+    )
 
-print("Training complete and model saved.")
+    # Initialize Trainer
+    trainer = Trainer(
+        model=model,
+        args=training_args,
+        data_collator=data_collator,
+        train_dataset=tokenized_datasets["train"],
+    )
+
+    # Train model
+    trainer.train()
+
+if __name__ == "__main__":
+    main()
