@@ -60,6 +60,7 @@ def main():
 
     # Path to the uBlock Origin extension
     ublock_origin_path = os.path.abspath('extensions/CGBCAHBPDHPCEGMBFCONPPLDIEMGCOII_1_58_1_11.crx')
+    options = webdriver.ChromeOptions()
     options.add_extension(ublock_origin_path)
 
     service = Service('/usr/local/bin/chromedriver')  # Path to your WebDriver
