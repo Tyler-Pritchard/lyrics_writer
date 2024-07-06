@@ -12,7 +12,7 @@ def scrape_lyrics(url, driver, retries=3):
         try:
             print(f"Scraping URL: {url}, Attempt: {attempt + 1}")
             driver.get(url)
-            time.sleep(4                                                         )  # Wait for the page to load
+            time.sleep(5)  # Wait for the page to load
 
             # Try to find the lyrics divs using multiple methods
             lyrics_div = None
@@ -21,7 +21,7 @@ def scrape_lyrics(url, driver, retries=3):
                 'div.Lyrics__Root-sc-1ynbvzw-0',  # Newer Genius layout
                 'div.Lyrics__Container-sc-1ynbvzw-6',  # Another possible layout
                 '.lyrics'  # Just in case
-            ]      
+            ]
 
             for selector in possible_selectors:
                 try:
@@ -48,7 +48,7 @@ def scrape_lyrics(url, driver, retries=3):
 def main():
     # Set up Selenium WebDriver with uBlock Origin
     options = Options()
-    options.headless = True  # Run in headless mode
+    options.add_argument("--headless=new")  # Run in headless mode
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-gpu")
@@ -59,8 +59,10 @@ def main():
     options.add_argument("--disable-remote-fonts")
 
     # Path to the uBlock Origin extension
-    ublock_origin_path = os.path.abspath('extensions/CGBCAHBPDHPCEGMBFCONPPLDIEMGCOII_1_58_1_11.crx')
-    options = webdriver.ChromeOptions()
+    ublock_origin_path = os.path.abspath('extensions/uBlock0_1.39.2.crx')
+    if not os.path.exists(ublock_origin_path):
+        raise OSError(f"Path to the extension doesn't exist: {ublock_origin_path}")
+
     options.add_extension(ublock_origin_path)
 
     service = Service('/usr/local/bin/chromedriver')  # Path to your WebDriver
